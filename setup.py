@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 # Read version from version.py
-with open(os.path.join("shotgrid_flow", "version.py")) as f:
+with open(os.path.join("flow", "version.py")) as f:
     version_info = {}
     exec(f.read(), version_info)
     version = version_info["__version__"]
@@ -19,7 +19,7 @@ setup(
     description="A package for easy Shotgrid connections",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/shotgrid-flow",
+    url="https://github.com/mswed/flow",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -27,7 +27,5 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.6",
-    install_requires=[
-        "sgtk",
-    ],
+    install_requires=["sgtk", "python-dotenv"],
 )

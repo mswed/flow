@@ -42,6 +42,21 @@ projects = flow.api.find("Project", [], ["name"])
 print(projects)
 ```
 
+### Using with .env file
+Create a .env file in your project root:
+
+```
+SHOTGUN_HOST=https://your-studio.shotgunstudio.com
+SCRIPT_KEY_NUKE=your-api-key-here
+```
+The package will automatically find and load this file when you call Flow.connect().
+You can also specify a different path to your .env file:
+
+```
+flow = Flow.connect(script_key="NUKE", dotenv_path="/path/to/your/.env")
+```
+
+```
 ### Connect From a Path
 
 ```python

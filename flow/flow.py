@@ -1,5 +1,7 @@
 import sgtk
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
 
 class Flow(object):
@@ -8,7 +10,9 @@ class Flow(object):
     """
 
     @classmethod
-    def connect(cls, script_key=None, user=False, path=None):
+    def connect(
+        cls, script_key=None, user=False, path=None, host=None, dotenv_path=None
+    ):
         """
         Create a connection to Shotgrid
 
@@ -17,6 +21,19 @@ class Flow(object):
         @param path: str, path to get the toolkit instance from
         @return: A configured Flow instance
         """
+
+        if dotenv_path:
+            print(f"Using specified dotenv path: {dotenv_path}")
+            load_dotenv(dotenv_path)
+        else:
+            # Try to find .env file in current directory or any parent directory
+            current_dir = Path.cwd()
+            while current_dir != current_dir.parent:
+                env_file = current_dir / ".env"
+                if env_file.exists():
+                    load_dotenv(env_file)
+                    break
+                current_dir = current_dir.parent
 
         flow = cls()
 
@@ -34,12 +51,25 @@ class Flow(object):
                 # we are connecting as a script
                 if script_key is None:
                     # ask for a key if we don't have one
-                    print("Please provide a script key!")
+                    raise ValueError(
+                        "Script key is required when not connecting as a user. Please provide a valid script_key parameter."
+                    )
+
+                key = f"SCRIPT_KEY_{script_key.upper()}"
+                if not os.environ.get(key):
+                    raise ValueError(
+                        f"Could not find specified key {script_key.upper()}. Please provide a valid script_key parameter."
+                    )
+
                 else:
-                    key = f"SCRIPT_KEY_{script_key.upper()}"
+                    sg_host = host or os.environ.get("SHOTGUN_HOST")
+                    if not sg_host:
+                        raise ValueError(
+                            "Missing ShotGrid host URL. Please provide one via the 'host' parameter or set SHOTGUN_HOST environment variable"
+                        )
                     sa = sgtk.authentication.ShotgunAuthenticator()
                     sg_user = sa.create_script_user(
-                        api_script=key, api_key=os.environ.get(key)
+                        api_script=key, api_key=os.environ.get(key), host=sg_host
                     )
 
             # Authenticate as a user or script
