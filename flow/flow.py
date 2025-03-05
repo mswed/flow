@@ -55,10 +55,19 @@ class Flow(object):
                         "Script key is required when not connecting as a user. Please provide a valid script_key parameter."
                     )
 
-                key = f"SCRIPT_KEY_{script_key.upper()}"
-                if not os.environ.get(key):
+                # Get the script name and key from the environment
+                script_name_env_var = f"{script_key.upper()}_SCRIPT_NAME"
+                script_key_env_var = f"{script_key.upper()}_SCRIPT_KEY"
+                script_name = os.environ.get(script_name_env_var)
+                api_key = os.environ.get(script_key_env_var)
+
+                if not script_name:
                     raise ValueError(
-                        f"Could not find specified key {script_key.upper()}. Please provide a valid script_key parameter."
+                        f'Missing environment variable "{script_name_env_var}"'
+                    )
+                if not api_key:
+                    raise ValueError(
+                        f'Missing environment variable "{script_key_env_var}"'
                     )
 
                 else:
@@ -69,7 +78,7 @@ class Flow(object):
                         )
                     sa = sgtk.authentication.ShotgunAuthenticator()
                     sg_user = sa.create_script_user(
-                        api_script=key, api_key=os.environ.get(key), host=sg_host
+                        api_script=script_name, api_key=api_key, host=sg_host
                     )
 
             # Authenticate as a user or script
